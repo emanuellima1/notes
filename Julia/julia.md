@@ -17,7 +17,6 @@
   - [Structures](#structures)
   - [I/O](#io)
   - [Exceptions](#exceptions)
-  - [Metaprogramming](#metaprogramming)
   - [Performance](#performance)
   - [Plotting](#plotting)
   - [DataFrames](#dataframes)
@@ -192,19 +191,331 @@ Observations on types:
 
 ## Basic Syntax
 
+The typical control flow is present:
+
+```julia
+for i = 1:5
+    println(i)
+end
+
+for j in [1, 2, 3]
+    println(j)
+end
+
+for i = 1:2, j = 3:4
+    println((i, j))
+end
+
+i = 0
+while i < 5
+    println(i)
+    global i += 1
+end
+
+if x < y
+    println("x is less than y")
+elseif x > y
+    println("x is greater than y")
+else
+    println("x is equal to y")
+end
+```
+
+There are list comprehensions:
+
+```julia
+[myfunction(i) for i in [1,2,3]]
+
+[x + 2y for x in [10,20,30], y in [1,2,3]]
+
+mydict = Dict()
+[mydict[i]=value for (i, value) in enumerate(mylist)]
+# enumerate returns an iterator to tuples with the index and the value of elements in an array
+
+[students[name] = sex for (name,sex) in zip(names,sexes)]
+# zip returns an iterator of tuples pairing two or multiple lists, e.g. [("Marc","M"),("Anne","F")]
+
+map((n,s) -> students[n] = s, names, sexes)
+# map applies a function to a list of arguments
+```
+
+The ternary operator is present:
+
+```julia
+a ? b : c
+# If a is true, then b, else c
+```
+
+The usual logic operators exist:
+
+- And: `&&`
+- Or:  `||`
+- Not: `!`
+
+Functions can be declared like so:
+
+```julia
+function f(x)
+    x+2
+end
+```
+
+Julia has multiple-dispatch. If you declare the same function with different arguments, the compiler will choose the correct function to call based on the arguments you passed.  
+You can also do type parametrization on functions:
+
+```julia
+function f(x::T)
+    x+2
+end
+
+myfunction(x::T, y::T2, z::T2) where {T <: Number, T2} = 5x + 5y + 5z
+```
+
+Functions are objects that can be assigned to new variables, returned, or nested:
+
+```julia
+f(x) = 2x   # define a function f inline
+a = f(2)    # call f and assign the return value to a
+a = f       # bind f to a new variable name (it's not a deep copy)
+a(5)        # call again the (same) function
+```
+
+The arguments of a function are normally passed by reference.  
+Anonymous functions can be declared like so:
+
+```julia
+(x, y) -> x^2 + 2y - 1
+# you can assign an anonymous function to a variable.
+```
+
+You can "broadcast" a function to work over all the elements of an array:
+
+```julia
+myArray = broadcast(i -> replace(i, "x" => "y"), myArray)
+```
+
 ## Structures
+
+You can define structures like this:
+
+```julia
+# Structs are immutable by default. Hence the mutable keyword.
+# Immutable structs are much faster.
+mutable struct MyStruct
+  property1::Int64
+  property2::String
+end
+
+# Parametrized:
+mutable struct MyStruct2{T<:Number}
+ property1::Int64
+ property2::String
+ property3::T
+end
+
+# Instantiating and accessing attribute:
+myObject = MyStruct(20,"something")
+a = myObject.property1 # 20
+```
+
+Attention to this:
+
+- `a::B`: Means "a must be of type B".
+- `A<:B`: Means "A must be a subtype of B".
+
+An example of object orientation in Julia:
+
+```julia
+struct Person
+  myname::String
+  age::Int64
+end
+
+struct Shoes
+    shoesType::String
+    colour::String
+end
+
+struct Student
+    s::Person
+    school::String
+    shoes::Shoes
+end
+
+function printMyActivity(self::Student)
+    println("I study at $(self.school) school")
+end
+
+struct Employee
+    s::Person
+    monthlyIncomes::Float64
+    company::String
+    shoes::Shoes
+end
+
+function printMyActivity(self::Employee)
+    println("I work at $(self.company) company")
+end
+
+gymShoes = Shoes("gym","white")
+proShoes = Shoes("classical","brown")
+
+Marc = Student(Person("Marc",15),"Divine School",gymShoes)
+MrBrown = Employee(Person("Brown",45),1200.0,"ABC Corporation Inc.", proShoes)
+
+printMyActivity(Marc)
+printMyActivity(MrBrown)
+```
+
+Observations:
+
+- Functions are not associated to a type. Do not call a function over a method (`myobj.func(x,y)`) but rather you pass the object as a parameter (`func(myobj, x, y)`)
+- Julia doesn't use inheritance, but rather composition (a field of the subtype is of the higher type, allowing access to its fields).
+
+Some useful functions:
+
+- `supertype(MyType)`: Returns the parent types of a type.
+- `subtypes(MyType)`: Lists all children of a type.
+- `fieldnames(MyType)`: Queries all the fields of a structure.
+- `isa(obj,MyType)`: Checks if obj is of type MyType.
+- `typeof(obj)`: Returns the type of obj.
 
 ## I/O
 
+Opening a file is similar to Python. The file closes automatically in the end:
+
+```julia
+# Write to file
+open("file.txt", "w") do f  # "w" for writing, "r" for read and "a" for append.
+    write(f, "test\n")      # \n for newline
+end
+
+# Read whole file:
+open("file.txt", "r") do f
+  filecontent = read(f,String)
+  print(filecontent)
+end
+
+# Read line by line:
+open("file.txt", "r") do f
+    for ln in eachline(f)
+        println(ln)
+    end
+end
+
+# Read, keeping track of line numbers:
+open("file.txt", "r") do f
+    for (i,ln) in enumerate(eachline(f))
+        println("$i $ln")
+    end
+end
+```
+
 ## Exceptions
 
-## Metaprogramming
+Exceptions are similar to Python:
+
+```julia
+try
+    # Some dangerous code...
+catch
+    # What to do if an error happens, most likely send an error message using:
+    error("My detailed message")
+end
+
+# Check for specific exception:
+function volume(region, year) 
+    try
+        return data["volume",region,year]
+    catch e
+        if isa(e, KeyError)
+            return missing
+        end
+        rethrow(e)
+    end
+end
+```
 
 ## Performance
 
+Statically typing the program, or facilitating the type inference of the JIT compiler makes the code run faster. Some notes:
+
+- Avoid global variables and run your performance-critical code within functions rather than in the global scope;
+- Annotate the inner type of a container, so it can be stored in memory contiguously;
+- Annotate the fields of composite types (use eventually parametric types);
+- Loop matrices first by column and then by row.
+
+Notes on profiling :
+
+- To time a part of the code type `@time myFunc(args)` (be sure you ran that function at least once, or you will measure compile time rather than run-time).
+- `@benchmark myFunc(args)` (from package BenchmarkTools) also works.
+- Profile a function: `Profile.@profile myfunct()` (best after the function has been already ran once for JIT-compilation).
+- Print the profiling results: `Profile.print()` (number of samples in corresponding line and all downstream code; file name:line number; function name;)
+- Explore a chart of the call graph with profiled data: `ProfileView.view()` (from package ProfileView).
+- Clear profile data: `Profile.clear()`.
+
 ## Plotting
 
+The Plots package provides an unified API to several supported [backends](http://docs.juliaplots.org/latest/backends/). Install the packages "Plots" and at least one backend, like "PlotlyJS" or "PyPlot.jl". Example:
+
+```julia
+using Plots
+plotlyjs()
+plot(sin, -2pi, pi, label="sine function")
+```
+
 ## DataFrames
+
+Examples:
+
+```julia
+# Read data from a CSV
+using DataFrames, CSV
+myData = CSV.read(file; delim=';', missingstring="NA", delim=";", decimal=',', copycols=true)
+
+# Read data from the web:
+using DataFrames, HTTP, CSV
+resp = HTTP.request("GET", "https://data.cityofnewyork.us/api/views/kku6-nxdu/rows.csv?accessType=DOWNLOAD")
+df = CSV.read(IOBuffer(String(resp.body)))
+
+# Read data from spreadsheet:
+using DataFrames, OdsIO
+df = ods_read("spreadsheet.ods";sheetName="Sheet2",retType="DataFrame",range=((tl_row,tl_col),(br_row,br_col)))
+
+# Empty df:
+df = DataFrame(A = Int64[], B = Float64[])
+```
+
+Insights about the data:
+
+- `first(df, 6)`
+- `show(df, allrows=true, allcols=true)`
+- `last(df, 6)`
+- `describe(df)`
+- `unique(df.fieldName)` or `[unique(c) for c in eachcol(df)]`
+- `names(df)`: Returns array of column names
+- `[eltype(col) for col = eachcol(df)]`: Returns an array of column types
+- `size(df)`: (r,c); `size(df)[1]`: (r); `size(df)[2]`: (c).
+- `ENV["LINES"] = 60`: Change the default number of lines before the content is - truncated (default 30).
+- `for c in eachcol(df)`: Iterates over each column.
+- `for r in eachrow(df)`: iterates over each row.
+
+To query the data from a DataFrame you can use the Query package. Examples:
+
+```julia
+using Query
+
+dfOut = @from i in df begin
+           @where i.col1 > 1
+           @select {aNewColName=i.col1, i.col3}
+           @collect DataFrame
+        end
+ dfOut = @from i in df begin
+            @where i.value != 1 && i.cat1 in ["green","pink"]
+            @select i
+            @collect DataFrame
+        end
+```
 
 ## References
 
