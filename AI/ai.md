@@ -16,8 +16,8 @@ A rational agent should be autonomous, i. e. it should learn what it can to comp
 The performance metric, environment, actuators and sensors combined make up the so called **task environment**. There are some classifications that can be made about it:
 
 - If the agent's sensors give it access to the complete state of the environment at each point in time, the task environment is **fully observable**. If the agent has no sensors, the task environment is **unobservable**. If it has partial access to the state of the environment, the task environment is **partially observable**.
+
 - Depending on the number of agents present in an environment, the task environment can be **single agent** or **multiagent**. In a multiagent setting, if the agents compete, we have a **competitive multiagent** environment (an environment where an agent maximizing its metric means minimizing the metric of another agent). In the other hand, when agents cooperate, we have a **cooperative multiagent** environment.
-- 
 
 ## References
 
