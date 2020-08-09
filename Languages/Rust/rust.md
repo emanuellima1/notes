@@ -1,13 +1,15 @@
-# Rust
+# Notes on Rust
 
 ## Table of Contents
 
-- [Rust](#rust)
+- [Notes on Rust](#notes-on-rust)
   - [Table of Contents](#table-of-contents)
   - [Basics](#basics)
+  - [Importing and Namespaces](#importing-and-namespaces)
   - [Memory](#memory)
     - [Stack and Heap](#stack-and-heap)
     - [Ownership](#ownership)
+  - [References](#references)
 
 ## Basics
 
@@ -149,7 +151,20 @@ fn main() {
 }
 ```
 
-i32 and f64 are the default integer and float types. The usual operators are present: + - * / %  
+For integers, we have i8, i16, i32, i64, i128 and u8, u16, u32, u64, u128 for unsigned. For floats, f32 and f64. i32 and f64 are the default types. The usual operators are present: + - * / %  
+The underscore _ means to throw away something:
+
+```rust
+// this does nothing because 42 is a constant
+let _ = 42;
+
+// this calls `get_thing` but throws away its result
+let _ = get_thing();
+
+// Starting with an underscore means the compiler  won't warn about them being unused:
+let _x = 42;
+```
+
 
 Tuples:
 
@@ -161,6 +176,9 @@ fn main() {
     // Destructuring
     let (x, y, z) = tup;
     println!("The value of y is: {}", y);
+
+    // Destructuring only a part of it
+    let (_, _, one) = tup;
 
     // By index
     let five_hundred = tup.0;
@@ -180,12 +198,98 @@ fn main() {
 }
 ```
 
+Structs:
+
+```rust
+// Declaration
+struct Vec2 {
+    x: f64,
+    y: f64,
+}
+
+// Initialization
+// The order does not matter, only the names do
+let v1 = Vec2 { x: 1.0, y: 3.0 };
+let v2 = Vec2 { y: 2.0, x: 4.0 };
+
+// Initializing the rest of the fields from another struct
+let v3 = Vec2 { x: 14.0, ..v2 };
+let v4 = Vec2 { ..v3 };
+
+// Destructuring
+// `x` is now 1.0, `y` is now `3.0`
+let Vec2 { x, y } = v1;
+
+// This throws away `v.y`
+let Vec2 { x, .. } = v;
+```
+
 Functions:
 
 ```rust
 fn my_function(arg1: type1, arg2: type2) -> return_type
 {
 ​   //body
+}
+```
+
+You can declare methods on your own types:
+
+```rust
+struct Number {
+    odd: bool,
+    value: i32,
+}
+
+impl Number {
+    fn is_strictly_positive(self) -> bool {
+        self.value > 0
+    }
+}
+```
+
+Traits are something multiple types can have in common. You can implement:
+
+- One of your traits on anyone's type
+- Anyone's trait on one of your types
+- But not a foreign trait on a foreign type
+
+```rust
+struct Number {
+    odd: bool,
+    value: i32,
+}
+
+trait Signed {
+    fn is_strictly_negative(self) -> bool;
+}
+
+// Our trait on our type
+impl Signed for Number {
+    fn is_strictly_negative(self) -> bool {
+        self.value < 0
+    }
+}
+
+// Our trait on a foreign type
+impl Signed for i32 {
+    fn is_strictly_negative(self) -> bool {
+        self < 0
+    }
+}
+
+// A foreign trait on our type:
+// The `Neg` trait is used to overload `-`, the unary minus operator.
+// An impl block is always for a type, so, inside that block, Self means that type.
+impl std::ops::Neg for Number {
+    type Output = Self;
+
+    fn neg(self) -> Self {
+        Self {
+            value: -self.value,
+            odd: self.odd,
+        }
+    }
 }
 ```
 
@@ -207,6 +311,58 @@ let number = if condition {
 } else {
     6
 };
+```
+
+
+Match:
+
+```rust
+// Similar to switch in C, but more powerful
+match feeling_lucky {
+    true => 6,
+    false => 4,
+}
+
+/*******************************************************/
+struct Number {
+    odd: bool,
+    value: i32,
+}
+
+fn main() {
+    let one = Number { odd: true, value: 1 };
+    let two = Number { odd: false, value: 2 };
+    print_number(one);
+    print_number(two);
+}
+
+fn print_number(n: Number) {
+    match n {
+        Number { odd: true, value } => println!("Odd number: {}", value),
+        Number { odd: false, value } => println!("Even number: {}", value),
+    }
+}
+
+/*******************************************************/
+// A match has to be exhaustive: at least one arm needs to match.
+fn print_number(n: Number) {
+    match n {
+        Number { value: 1, .. } => println!("One"),
+        Number { value: 2, .. } => println!("Two"),
+        Number { value, .. } => println!("{}", value),
+        // If the last arm didn't exist, we would get a compile-time error
+    }
+}
+
+/*******************************************************/
+// _ can be used as a "catch-all" pattern:
+fn print_number(n: Number) {
+    match n.value {
+        1 => println!("One"),
+        2 => println!("Two"),
+        _ => println!("{}", n.value),
+    }
+}
 ```
 
 Loop:
@@ -238,6 +394,77 @@ for element in a.iter() {
 for number in (1..4).rev() {
     println!("{}!", number);
 }
+```
+
+A pair of brackets declares a block, which has its own scope:
+
+```rust
+// This prints "in", then "out"
+fn main() {
+    let x = "out";
+    {
+        // this is a different `x`
+        let x = "in";
+        println!(x);
+    }
+    println!(x);
+}
+```
+
+Blocks are also expressions, which mean they evaluate to a value.
+
+```rust
+// This:
+let x = 42;
+
+// Is equivalent to this:
+let x = { 42 };
+```
+
+Inside a block, there can be multiple statements:
+
+```rust
+let x = {
+    let y = 1; // First statement
+    let z = 2; // Second statement
+    y + z // This is the tail - what the whole block will evaluate to
+};
+```
+
+That's why "omitting the semicolon at the end of a function" is the same as
+returning.
+
+## Importing and Namespaces
+
+`use` directives can be used to "bring in scope" names from other namespace:
+
+```rust
+// std is a crate (~ a library), cmp is a module (~ a source file), and
+// min is a function:
+
+use std::cmp::min;
+let least = min(7, 1); // This is 1
+```
+
+Within use directives, curly brackets have another meaning: they're globs". If we want to import both min and max , we can do any of these:
+
+```rust
+// this works:
+use std::cmp::min;
+use std::cmp::max;
+
+// this also works:
+use std::cmp::{min, max};
+
+// this also works!
+use std::{cmp::min, cmp::max};
+```
+
+A wildcard ( * ) lets you import every symbol from a namespace:
+
+```rust
+// This brings `min` and `max` in scope, and many other things
+use std::cmp::*;
 ```
 
 ## Memory
@@ -310,3 +537,8 @@ fn makes_copy(some_integer: i32) {
 The ownership of a variable follows the same pattern every time: assigning a value to another variable moves it. When a variable that includes data on the heap goes out of scope, the value will be cleaned up by drop unless
 the data has been moved to be owned by another variable.  
 At any given time, you can have either one mutable reference or any number of immutable references. References must always be valid.  
+
+## References
+
+- [Rust Book](https://doc.rust-lang.org/book/)
+- [A Half Hour to Learn Rust](https://fasterthanli.me/articles/a-half-hour-to-learn-rust)
