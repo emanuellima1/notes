@@ -6,6 +6,8 @@
   - [Table of Contents](#table-of-contents)
   - [Basics](#basics)
   - [Importing and Namespaces](#importing-and-namespaces)
+  - [Panic, Options and Result](#panic-options-and-result)
+  - [Lifetime](#lifetime)
   - [Memory](#memory)
     - [Stack and Heap](#stack-and-heap)
     - [Ownership](#ownership)
@@ -384,6 +386,113 @@ fn foobar<L, R>(left: L, right: R) {
 }
 ```
 
+Type parameters can have constraints:
+
+```rust
+fn print<T: Display>(value: T) {
+    println!("value = {}", value);
+}
+
+fn print<T: Debug>(value: T) {
+    println!("value = {:?}", value);
+}
+
+// Longer syntax:
+fn print<T>(value: T)
+where
+    T: Display,
+{
+    println!("value = {}", value);
+}
+
+// If you want multiple constraints:
+use std::fmt::Debug;
+
+fn compare<T>(left: T, right: T)
+where
+    T: Debug + PartialEq,
+{
+    println!("{:?} {} {:?}", left, if left == right { "==" } else { "!=" }, right);
+}
+
+fn main() {
+    compare("tea", "coffee"); // prints: "tea" != "coffee"
+}
+```
+
+Generic functions can be navigated using ::
+
+```rust
+fn main() {
+    use std::any::type_name;
+
+    // Turbofish syntax
+    println!("{}", type_name::<i32>()); // prints "i32"
+    println!("{}", type_name::<(f64, char)>()); // prints "(f64, char)"
+}
+```
+
+Structs can be generic:
+
+```rust
+struct Pair<T> {
+    a: T,
+    b: T,
+}
+
+fn print_type_name<T>(_val: &T) {
+    println!("{}", std::any::type_name::<T>());
+}
+
+fn main() {
+    let p1 = Pair { a: 3, b: 9 };
+    let p2 = Pair { a: true, b: false };
+    print_type_name(&p1); // prints "Pair<i32>"
+    print_type_name(&p2); // prints "Pair<bool>"
+
+    // Vec is generic
+    let mut v1 = Vec::new();
+    v1.push(1);
+    let mut v2 = Vec::new();
+    v2.push(false);
+}
+```
+
+Enums are types that can only have some specific values
+
+```rust
+fn main() {
+    enum WebEvent {
+    // An `enum` may either be `unit-like`,
+    PageLoad,
+    PageUnload,
+
+    // like tuple structs,
+    KeyPress(char),
+    Paste(String),
+
+    // or c-like structures.
+    Click { x: i64, y: i64 },
+    }
+}
+```
+
+Vectors:
+
+```rust
+fn main() {
+    // Vec is generic
+    let mut v1 = Vec::new();
+    v1.push(1);
+    let mut v2 = Vec::new();
+    v2.push(false);
+
+    // Literals:
+    let v1 = vec![1, 2, 3];
+    let v2 = vec![true, false, true];
+}
+```
+
 Conditional:
 
 ```rust
@@ -555,6 +664,67 @@ A wildcard ( * ) lets you import every symbol from a namespace:
 ```rust
 // This brings `min` and `max` in scope, and many other things
 use std::cmp::*;
+```
+
+## Panic, Options and Result
+
+```rust
+// Is a macro that violently stops execution with an error message, and the file name / line number of the error
+panic!("Error message");
+
+// Option is a type that contains something, or nothing. If .unwrap() is called on it, and it contains nothing, it panics
+enum Option<T> {
+    None,
+    Some(T),
+}
+
+let o1: Option<i32> = Some(128);
+o1.unwrap(); // this is fine
+
+let o2: Option<i32> = None;
+o2.unwrap(); // this panics!
+
+// Result is an enum that can either contain something, or an error. It also panics when unwrapped and containing an error
+enum Result<T, E> {
+    Ok(T),
+    Err(E),
+}
+```
+
+## Lifetime
+
+Variables have lifetimes:
+
+```rust
+fn main() {
+    // `x` doesn't exist yet
+    {
+        // `x` starts existing
+        let x = 42;
+
+        // `x_ref` starts existing - it borrows `x`
+        let x_ref = &x;
+
+        println!("x = {}", x);
+
+        // `x_ref` stops existing
+        // `x` stops existing
+    }
+    // `x` no longer exists
+}
+```
+
+The lifetime of a reference cannot exceed the lifetime of the variable binding it borrows:
+
+```rust
+fn main() {
+    let x_ref = {
+        let x = 42;
+        &x
+    };
+    println!("x_ref = {}", x_ref);
+    // error: `x` does not live long enough
+}
 ```
 
 ## Memory
