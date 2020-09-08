@@ -62,15 +62,15 @@ void use()
 Every object in the language has a type. An object is a portion of memory that holds a value of the given type. A value is a set of bits that are interpreted according to the type. Some built-in types are bool, char, int and double. Int variables' representation default to decimal (42) but can also be declared as binary (0b1010), hexadecimal (0x04AF) or octal (0432).  
 The usual arithmetic, comparison, logical and modification operations are present:
 
-|Arithmetic|Comparison|  Logical   |Modification|
-|----------|----------|------------|------------|
-|x + y     |  x == y  |   x && y   |   x += y   |
-|x - y     |  x != y  |   x \|\| y   |   x -= y   |
-|x * y     |  x < y   |     !x     |   ++x      |
-|x / y     |  x > y   |            |   --x      |
-|x % y     |  x <= y  |            |   x *= y   |
-|          |  x >= y  |            |   x /= y   |
-|          |          |            |   x %= y   |
+| Arithmetic | Comparison | Logical  | Modification |
+| ---------- | ---------- | -------- | ------------ |
+| x + y      | x == y     | x && y   | x += y       |
+| x - y      | x != y     | x \|\| y | x -= y       |
+| x * y      | x < y      | !x       | ++x          |
+| x / y      | x > y      |          | --x          |
+| x % y      | x <= y     |          | x *= y       |
+|            | x >= y     |          | x /= y       |
+|            |            |          | x %= y       |
 
 Attention to the fact that C++ makes implicit conversion on basic types:
 
@@ -96,7 +96,7 @@ double d2 {2.7};
 vector<int> v {1, 2, 3};
 ```
 
-The "=" is a tradition from C. "{}" is prefered because it avoids implicit conversions:
+The "=" is a tradition from C. "{}" is preferred because it avoids implicit conversions:
 
 ```cpp
 int a = 4.8; // a is 4 here
@@ -130,6 +130,29 @@ auto b {4.8}; // Both a and b are double
 
 ## Strings and Regex
 
+To accept a string from standard input, use `std::getline(read_from, into)`:
+
+```cpp
+std::string s;
+std::cout << "Enter string: ";
+std::getline(std::cin, s);
+```
+
+To create a substring from a string, use the method `.substring(starting_index, length)`:
+
+```cpp
+std::string s = "Hello World";
+std::string sub_s = s.substr(6, 5);
+```
+
+To find a substring in a given string, use the method `.find()`. If the method finds, it returns the position of the first found substring (the index of the first char of the substring). If the method doesn't find, it returns `std::string:npos`. The return type of the function is `std::string::size_type`:
+
+```cpp
+std::string s = "Hello World";
+std::string search_for = "World";
+std::string::size_type found = s.find(search_for);
+```
+
 ## I/O
 
 ## Containers
@@ -145,3 +168,4 @@ auto b {4.8}; // Both a and b are double
 ## References
 
 - Bjarne Stroustrup. A Tour of C++. Pearson Education. 2018.
+- Slobodan Dmitrovic. Modern C++ for Absolute Beginners. 2020.
