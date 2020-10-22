@@ -5,6 +5,8 @@
 - [Notes on C](#notes-on-c)
   - [Table of Contents](#table-of-contents)
   - [Basics](#basics)
+  - [Preprocessor](#preprocessor)
+  - [Some Headers](#some-headers)
 
 ## Basics
 
@@ -29,23 +31,23 @@ double A[5] = {
     [4] = 3.E+25,
     [3] = .00007,
 };
+
+// A[2] is initialized as 0.0 
 ```
 
 Any position that is not listed in the initializer is set to 0. A[2] == 0.0  
 
-Don’t compare to 0, false, or true. Also, all scalars have a truth value.
+Don’t compare to 0, false, or true. Also, all scalars have a truth value. An integer or floating point 0 will always evaluate to false.  
 
 ```c
 // GOOD
 bool b = true;
-
 if ( b ) {
   // do something
 }
 
 // BAD
 bool b = true;
-
 if (( b != false ) == true ) {
   // do something
 }
@@ -66,4 +68,59 @@ The scalar types:
 | void*         | Built in    | "%p"                |
 | unsigned char | Built in    | "%hhu" "%02hhx"     |
 
-pag25
+size_t is any integer on the interval [0, SIZE_MAX], as defined on *stdint.h*.  
+
+Best Practice: Never modify more than one object in a statement.  
+
+Ternary operator:  
+
+```c
+// Pattern:
+// (boolean_expression) ? if_true : if_false;
+
+size_t size_min(size_t a , size_t b) {
+    return ( a < b ) ? a : b;
+}
+```
+
+Attention: in an expression such as `f(a) + g(b)`, there is no pre-established order specifying
+whether `f(a)` or `g(b)` is to be computed first. If either the function `f` or `g` works with side effects
+(for instance, if `f` modifies `b` behind the scenes), the outcome of the expression will depend on the
+chosen order. The same holds for function arguments:  
+
+```c
+printf("%g and %g\n", f(a), f(b)) ;
+```
+
+Best Practice: Functions that are called inside expressions should not have side effects.  
+
+## Preprocessor
+
+Defines a macro as 0 and an empty macro:
+
+```c
+#define  __MACRO__ 0
+
+#define  __MACRO2__
+```
+
+Checks if a macro is defined. If it is, throws an error (the error stops the compilation):
+
+```c
+#ifdef  __MACRO__
+#error "Error!"
+#endif
+```
+
+Checks if a macro is not defined. If it isn't, defines it:
+
+```c
+#ifndef __MACRO__
+#define __MACRO__
+#endif
+```
+
+## Some Headers
+
+- *stdint.h*: defines integer types with certain widths.
+- *tgmath.h*: defines type generic math functions, for both real and complex numbers.
