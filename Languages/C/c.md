@@ -68,7 +68,7 @@ The scalar types:
 | void*         | Built in    | "%p"                |
 | unsigned char | Built in    | "%hhu" "%02hhx"     |
 
-size_t is any integer on the interval [0, SIZE_MAX], as defined on *stdint.h*.  
+size_t is any integer on the interval [0, SIZE_MAX], as defined on **stdint.h**.  
 
 Best Practice: Never modify more than one object in a statement.  
 
@@ -89,7 +89,7 @@ whether `f(a)` or `g(b)` is to be computed first. If either the function `f` or 
 chosen order. The same holds for function arguments:  
 
 ```c
-printf("%g and %g\n", f(a), f(b)) ;
+printf("%g and %g\n", f(a), f(b));
 ```
 
 Best Practice: Functions that are called inside expressions should not have side effects.  
@@ -122,5 +122,5 @@ Checks if a macro is not defined. If it isn't, defines it:
 
 ## Some Headers
 
-- *stdint.h*: defines integer types with certain widths.
-- *tgmath.h*: defines type generic math functions, for both real and complex numbers.
+- **stdint.h**: defines integer types with certain widths.
+- **tgmath.h**: defines type generic math functions, for both real and complex numbers.
