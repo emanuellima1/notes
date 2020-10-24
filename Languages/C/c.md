@@ -5,7 +5,9 @@
 - [Notes on C](#notes-on-c)
   - [Table of Contents](#table-of-contents)
   - [Basics](#basics)
+    - [Initialization of structs](#initialization-of-structs)
   - [Preprocessor](#preprocessor)
+  - [Some Best Practices](#some-best-practices)
   - [Some Headers](#some-headers)
 
 ## Basics
@@ -92,7 +94,34 @@ chosen order. The same holds for function arguments:
 printf("%g and %g\n", f(a), f(b));
 ```
 
-Best Practice: Functions that are called inside expressions should not have side effects.  
+**Best Practice**: Functions that are called inside expressions should not have side effects.  
+
+### Initialization of structs
+
+```c
+typedef struct vec2 { float x, y; } vec2;
+
+vec2 v0 = {1.0f, 2.0f};
+vec2 v1 = {.x = 1.0f, .y = 2.0f};
+vec2 v2 = {.y = 2.0f};    // missing struct members are set to zero
+
+// Inside functions, runtime-variable values can be used for initialization:
+float get_x(void) {
+    return 1.0f;
+}
+
+void bla(void) {
+    vec2 v0 = { .x = get_x(), .y = 2.0f };
+}
+
+// But this doesn't work:
+    vec2 v0;
+    // this doesn't work
+    v0 = {1.0f, 2.0f};
+    // instead a type hint is needed:
+    v0 = (vec2) {1.0f, 2.0f};
+
+```
 
 ## Preprocessor
 
@@ -118,6 +147,52 @@ Checks if a macro is not defined. If it isn't, defines it:
 #ifndef __MACRO__
 #define __MACRO__
 #endif
+```
+
+## Some Best Practices
+
+- Enable all warnings: -Wall and -Wextra on GCC and Clang
+- Wrap your structs in a typedef:
+
+```c
+typedef struct bla{
+    int a, b, c;
+} bla;
+
+// Attention: the POSIX standard reserves the ‘_t’ postfix for its own type names to prevent collisions with user types.
+```
+
+- Use void to indicate that a function does not receive arguments:
+
+```c
+// GOOD
+void my_func(void) {
+    ...
+}
+
+// BAD
+void my_func() {
+    ...
+}
+```
+
+- Don’t be afraid to pass and return structs by value:
+
+```c
+typedef struct float2{ float x, y; } float2;
+
+float2 addf2(float2 v0, float2 v1) {
+    return (float2) { v0.x + v1.x, v0.y + v1.y };
+}
+
+...
+float2 v0 = {1.0f, 2.0f};
+float2 v1 = {3.0f, 4.0f};
+float2 v3 = addf2(v0, v1);
+...
+
+// You can also move the initialization of the two inputs right into the function call:
+float2 v3 = addf2((float2){ 1.0f, 2.0f }, (float2){ 3.0f, 4.0f });
 ```
 
 ## Some Headers
