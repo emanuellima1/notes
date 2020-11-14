@@ -8,6 +8,10 @@
   - [User-Defined Types](#user-defined-types)
   - [Modularity](#modularity)
   - [Classes](#classes)
+    - [Constructors](#constructors)
+    - [Copy Constructors](#copy-constructors)
+    - [Copy Assignment](#copy-assignment)
+    - [Move Constructor](#move-constructor)
   - [Operations](#operations)
   - [Templates](#templates)
   - [Generic Programming](#generic-programming)
@@ -113,12 +117,145 @@ auto b {4.8}; // Both a and b are double
 
 -> 1.5
 
-
 ## User-Defined Types
 
 ## Modularity
 
 ## Classes
+
+### Constructors
+
+A constructor without parameters or with default parameters set is called a default constructor. It is a constructor which can be called without arguments:  
+
+```cpp
+class MyClass
+{
+  public:
+    MyClass()
+    {
+      std::cout << "Default constructor invoked.\n";
+    }
+};
+
+int main()
+{
+  MyClass o; // invoke a default constructor
+}
+
+// Default arguments
+class MyClass
+{
+  public:
+    MyClass(int x = 123, int y = 456)
+    {
+      std::cout << "Default constructor invoked.\n";
+    }
+};
+
+int main()
+{
+  MyClass o; // invoke a default constructor
+}
+
+// If a default constructor is not explicitly defined in the code, the compiler will generate a default constructor.
+// Constructors are invoked when object initialization takes place. They can’t be invoked directly.
+```
+
+Member initializer list:
+
+```cpp
+class MyClass
+{
+ public:
+   int x, y;
+   MyClass(int xx, int yy)
+     : x{ xx }
+     , y{ yy } // member initializer list
+   {
+   }
+};
+
+int main()
+{
+   MyClass o{ 1, 2 }; // invoke a user-defined constructor
+   std::cout << o.x << ' ' << o.y;
+}
+```
+
+### Copy Constructors
+
+When we initialize an object with another object of the same class, we invoke a copy constructor. If we do not supply our copy constructor, the compiler generates a default copy constructor.
+
+```cpp
+class MyClass
+{
+  private:
+    int x, y;
+
+  public:
+    MyClass(int xx, int yy) : x{ xx }, y{ yy }
+    {
+    }
+};
+int main()
+{
+  MyClass o1{ 1, 2 };
+  MyClass o2 = o1; // default copy constructor invoked
+}
+```
+
+A user defined copy constructor has this signature: `MyClass(const MyClass& rhs)`
+
+```cpp
+class MyClass
+{
+  private:
+    int x, y;
+
+  public:
+    MyClass(int xx, int yy) : x{ xx }, y{ yy }
+    {
+    }
+
+    MyClass(const MyClass& rhs)
+    : x { rhs.x }
+    , y { rhs.y }
+    {
+    }
+};
+int main()
+{
+  MyClass o1{ 1, 2 };
+  MyClass o2 = o1; // user copy constructor invoked
+}
+```
+
+### Copy Assignment
+
+When an object is created on one line and then assigned to in the next line, it then uses the copy assignment operator to copy the data from another object:
+
+```cpp
+MyClass from, to;
+to = from; // copy assignment
+```
+
+A copy assignment operator is of the following signature: `MyClass& operator=(const MyClass& rhs)`
+
+```cpp
+class MyClass
+{
+  public:
+    MyClass& operator=(const MyClass& rhs)
+    {
+      // implement the copy logic here
+      return *this;
+    }
+};
+
+// The overloaded = operators must return a dereferenced this pointer at the end.
+```
+
+### Move Constructor
 
 ## Operations
 
