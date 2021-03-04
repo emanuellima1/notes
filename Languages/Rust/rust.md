@@ -224,6 +224,32 @@ let Vec2 { x, y } = v1;
 
 // This throws away `v.y`
 let Vec2 { x, .. } = v;
+
+// A tuple struct
+struct Point2D(u32, u32);
+
+// A unit struct
+struct Unit;
+```
+
+Tuple structs are similar to classic structs, but their fields have no names. For accessing individual variables, the same syntax is used as with regular tuples, namely, foo.0, foo.1, and so on, starting at zero.  
+Unit structs are most commonly used as markers. They're useful when you need to implement a trait on something but don't need to store any data inside it.  
+
+```rust
+fn main() {
+    // Instantiate a classic struct, with named fields. Order does not matter.
+    let person = Person {
+        name: String::from("Adam"),
+        likes_oranges: true,
+        age: 25
+    };
+
+    // Instantiate a tuple struct by passing the values in the same order as defined.
+    let origin = Point2D(0, 0)
+
+    // Instantiate a unit struct.
+    let unit = Unit;
+}
 ```
 
 Functions:
@@ -493,6 +519,38 @@ fn main() {
 }
 ```
 
+Hash maps:
+
+The type `HashMap<K, V>` stores a mapping of keys of type K to values of type V.
+
+```rust
+fn main() {
+    use std::collections::HashMap;
+
+    let mut contacts = HashMap::new();
+
+    contacts.insert("Daniel", "798-1364");
+    contacts.insert("Ashley", "645-7689");
+    contacts.insert("Katie", "435-8291");
+    contacts.insert("Robert", "956-1745");
+
+    // Search for "Daniel" on contacts
+    match contacts.get(&"Daniel") {
+        Some(&number) => println!("Calling Daniel: {}", call(number)),
+        _ => println!("Don't have Daniel's number."),
+    }
+
+    // Remove "Ashley" from contacts
+    contacts.remove(&"Ashley");
+
+    // `HashMap::iter()` returns an iterator that yields 
+    // (&'a key, &'a value) pairs in arbitrary order.
+    for (contact, &number) in contacts.iter() {
+        println!("Calling {}: {}", contact, call(number)); 
+    }
+}
+```
+
 Conditional:
 
 ```rust
@@ -688,6 +746,22 @@ o2.unwrap(); // this panics!
 enum Result<T, E> {
     Ok(T),
     Err(E),
+}
+
+// get returns an option with the value if the index is inside of bounds
+let fruits = vec!["banana", "apple", "coconut", "orange", "strawberry"];
+    for index in 0..10 {
+        match fruits.get(index) {
+            Some(fruit_name) => println!("It's a delicious {}!", fruit_name),
+            None => println!("There is no fruit! :("),
+        }
+    }
+
+let number = Some(7);
+// The `if let` construct reads: "if `let` destructures `number` into
+// `Some(i)`, evaluate the block (`{}`).
+if let Some(i) = number {
+    println!("Matched {:?}!", i);
 }
 ```
 
