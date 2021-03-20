@@ -257,6 +257,8 @@ class MyClass
 
 ### Move Constructor
 
+We can move the data from one object to the other. We call it a move semantics.
+
 ## Operations
 
 ## Templates
