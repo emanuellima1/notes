@@ -5,7 +5,8 @@
 - [Notes on Julia](#notes-on-julia)
   - [Table of Contents](#table-of-contents)
   - [Basics](#basics)
-  - [Data Structures](#data-structures)
+  - [Data Types and Structures](#data-types-and-structures)
+    - [Scalar Types](#scalar-types)
     - [Arrays](#arrays)
     - [Matrixes](#matrixes)
     - [Tuples](#tuples)
@@ -14,8 +15,9 @@
     - [Memory and Copy](#memory-and-copy)
     - [Random Numbers](#random-numbers)
   - [Basic Syntax](#basic-syntax)
-  - [Structures](#structures)
+  - [Custom Types](#custom-types)
   - [I/O](#io)
+  - [Metaprogramming](#metaprogramming)
   - [Exceptions](#exceptions)
   - [Performance](#performance)
   - [Plotting](#plotting)
@@ -48,6 +50,28 @@ In the REPL, by pressing "]" you can enter the "package mode", where you can wri
 - `add git@github.com:userName/pkgName.jl.git`: Checkout a non registered pkg
 
 To use a package on a Julia script, write `using [package]` at the beginning of the script. To use a package without populating the namespace, write `import [package]`. But then, you will have to use the functions as `[package].function()`. You can also include local Julia scripts as such: `include("my_script.jl")`.  
+
+I think that `using [package]` is bad practice. The best way to import a package is this:
+
+```julia
+# Importing the JSON package through an alias 
+# BEFORE JULIA 1.6
+import JSON; const J = JSON
+
+# Importing the JSON package through an alias 
+# AFTER JULIA 1.6
+import JSON as J
+
+# Using:
+J.print(Dict("Hello, " => "World!"))
+```
+
+## Data Types and Structures
+
+Some built-in data structures of the Julia language:
+
+### Scalar Types
+
 The usual scalar types are present: Int64, Float64, Char, String and Bool. We use single quote for chars and double quote for strings. Some string operations are also present, like:
 
 - `split`: Separates string into other strings based on a char. Default char is whitespace.
@@ -60,10 +84,6 @@ Other ways to concatenate strings:
 - Concatenation operator: `*`;
 - Function `string(string1,string2,string3)`;
 - Interpolate string variables in a bigger one using the dollar symbol: `a = "$str1 is a string and $(myobject.int1) is an integer"`.
-
-## Data Structures
-
-Some built-in data structures of the Julia language:
 
 ### Arrays
 
@@ -294,7 +314,7 @@ You can "broadcast" a function to work over all the elements of an array:
 myArray = broadcast(i -> replace(i, "x" => "y"), myArray)
 ```
 
-## Structures
+## Custom Types
 
 You can define structures like this:
 
@@ -411,6 +431,8 @@ open("file.txt", "r") do f
 end
 ```
 
+## Metaprogramming
+
 ## Exceptions
 
 Exceptions are similar to Python:
@@ -520,3 +542,4 @@ dfOut = @from i in df begin
 ## References
 
 - [Julia language: a concise tutorial](https://syl1.gitbook.io/julia-language-a-concise-tutorial/).
+- Antonello Lobianco. Julia Quick Syntax Reference. 1st Edition. Apress.
