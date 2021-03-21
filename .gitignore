@@ -1,3 +1,4 @@
 *.cpp
 *.out
 .clang-format
+*.jl
