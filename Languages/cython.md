@@ -11,8 +11,11 @@
     - [C Functions](#c-functions)
     - [C Functions with Automatic Python Wrappers](#c-functions-with-automatic-python-wrappers)
     - [Exception Handling](#exception-handling)
+    - [C structs, unions, enums an typedefs](#c-structs-unions-enums-an-typedefs)
+    - [Efficient Loops](#efficient-loops)
   - [Extension Types](#extension-types)
   - [Code Organization](#code-organization)
+  - [Wrapping C++](#wrapping-c)
   - [Profiling](#profiling)
   - [Typed Memoryviews](#typed-memoryviews)
   - [Parallelism](#parallelism)
@@ -180,18 +183,110 @@ The `inline` modifier, when judiciously used, can yield performance improvements
 
 ### Exception Handling
 
-A `def` function always returns some sort of PyObject pointer at the C level. This invariant allows Cython to correctly propagate exceptions from def functions without issue. Cython’s other two function types (cdef and cpdef) may return a non-Python type, which makes some other exception-indicating mechanism necessary. Example:
+A `def` function always returns some sort of PyObject pointer at the C level. This invariant allows Cython to correctly propagate exceptions from def functions without issue. Cython’s other two function types (`cdef` and `cpdef`) may return a non-Python type, which makes some other exception-indicating mechanism necessary. Example:
 
 ```cython
 cpdef int divide_ints(int i, int j):
     return i / j
 ```
 
+To correctly propagate the exception that occurs when j is 0, Cython provides an `except` clause:
+
+```cython
+cpdef int divide_ints(int i, int j) except? -1:
+    return i / j
+```
+
+The `except? -1` clause allows the return value -1 to act as a possible sentinel that an exception has occurred. If `divide_ints` ever returns -1, Cython checks if the global exception state has been set, and if so, starts unwinding the stack.  
+In this example we use a question mark in the `except` clause because -1 might be a valid result from `divide_ints`, in which case no exception state will be set. If there is a return value that always indicates an error has occurred without ambiguity, then the question mark can be omitted.  
+
+### C structs, unions, enums an typedefs
+
+The following C constructs:
+
+```c
+struct mycpx {
+    int a;
+    float b;
+};
+
+union uu {
+    int a;
+    short b, c;
+};
+
+enum COLORS {ORANGE, GREEN, PURPLE};
+```
+
+Can be declared on Cython like this:
+
+```cython
+cdef struct mycpx:
+    float real
+    float imag
+
+cdef union uu:
+    int a
+    short b, c
+
+cdef enum COLORS:
+    ORANGE, GREEN, PURPLE
+```
+
+We can combine `struct` and `union` declarations with `ctypedef`, which creates a new type alias for the `struct` or `union`:
+
+```cython
+ctypedef struct mycpx:
+    float real
+    float imag
+
+ctypedef union uu:
+    int a
+    short b, c
+```
+
+To declare and initialize:
+
+```cython
+cdef mycpx a = mycpx(3.1415, -1.0)
+
+# Or
+cdef mycpx b = mycpx(real=2.718, imag=1.618034)
+
+# Or
+cdef mycpx zz
+zz.real = 3.1415
+zz.imag = -1.0
+
+# Or, structs can be assigned from a Python dictionary (with CPython overhead):
+cdef mycpx zz = {'real': 3.1415, 'imag': -1.0}
+```
+
+### Efficient Loops
+
+Considering this Python for loop over a range:
+
+```python
+n = 100
+# ...
+for i in range(n):
+    # ...
+```
+
+Its cythonized version that would produce the best performing C code is:
+
+```cython
+cdef unsigned int i, n = 100
+for i in range(n):
+    # ...
+```
 
 
 ## Extension Types
 
 ## Code Organization
+
+## Wrapping C++
 
 ## Profiling
 
