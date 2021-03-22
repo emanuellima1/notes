@@ -472,6 +472,11 @@ myArray = f.(myArray)
 
 ## Custom Types
 
+There are two type operators:
+
+- The `::` operator is used to constrain an object of being of a given type. For example, `a::B` means “a must be of type B”.
+- The `<:` operator has a similar meaning, but it’s a bit more relaxed in the sense that the object can be of any subtypes of the given type. For example, `A<:B` means “A must be a subtype of B”, that is, B is the “parent” type and A is its “child” type.
+
 You can define structures like this:
 
 ```julia

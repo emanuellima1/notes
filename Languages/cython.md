@@ -9,7 +9,7 @@
   - [Typing](#typing)
     - [Typing variables](#typing-variables)
     - [C Functions](#c-functions)
-    - [C Functions with Python Wrappers Automatically](#c-functions-with-python-wrappers-automatically)
+    - [C Functions with Automatic Python Wrappers](#c-functions-with-automatic-python-wrappers)
     - [Exception Handling](#exception-handling)
   - [Extension Types](#extension-types)
   - [Code Organization](#code-organization)
@@ -154,7 +154,7 @@ def wrap_factorial(n):
 
 One limitation of this is that `wrap_factorial` and its underlying `factorial` are restricted to C integral types only, and do not have the benefit of Python’s unlimited-precision integers. This means that `wrap_factorial` gives erroneous results for arguments larger than some small value, depending on how large an `unsigned long` is on your system. We always have to be aware of the limitations of the C types.
 
-### C Functions with Python Wrappers Automatically
+### C Functions with Automatic Python Wrappers
 
 A `cpdef` function combines features from `cdef` and `def` functions: we get a C-only version of the function and a Python wrapper for it, both with the same name. When we call the function from Cython, we call the C-only version; when we call the function from Python, the wrapper is called.
 
@@ -165,7 +165,18 @@ cpdef long factorial(long n):
     return n * factorial(n - 1)
 ```
 
-A `cpdef` function has one limitation, due to the fact that it does double duty as both a Python and a C function: its arguments and return types have to be compatible with both Python and C types.
+A `cpdef` function has one limitation, due to the fact that it does double duty as both a Python and a C function: its arguments and return types have to be compatible with both Python and C types.  
+
+Both `cdef` and `cpdef` can be given an `inline` hint that the C compiler can use or ignore, depending on the situation:
+
+```cython
+cpdef inline long factorial(long n):
+    if n <= 1:
+        return 1
+    return n * factorial(n - 1)
+```
+
+The `inline` modifier, when judiciously used, can yield performance improvements, especially for small inlined functions called in deeply nested loops, for example.
 
 ### Exception Handling
 
@@ -175,6 +186,8 @@ A `def` function always returns some sort of PyObject pointer at the C level. Th
 cpdef int divide_ints(int i, int j):
     return i / j
 ```
+
+
 
 ## Extension Types
 
