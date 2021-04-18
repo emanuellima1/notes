@@ -283,7 +283,95 @@ for i in range(n):
 
 ## Extension Types
 
+A Python class such as:
 
+```python
+class Particle():
+    def __init__(self, m, p, v):
+        self.mass = m
+        self.position = p
+        self.velocity = v
+    def get_momentum(self):
+        return self.mass * self.velocity
+```
+
+Would be cythonized as:
+
+```cython
+cdef class Particle():
+    cdef double mass, position, velocity
+
+    def __init__(self, m, p, v):
+        self.mass = m
+        self.position = p
+        self.velocity = v
+    def get_momentum(self):
+        return self.mass * self.velocity
+```
+
+To make an attribute readonly (for a Python caller): 
+
+```cython
+cdef class Particle():
+    cdef readonly double mass
+    cdef double position, velocity
+# ...
+```
+
+`mass` will be readable and not writable by the Python caller, but `position` and `velocity` will be completely private.
+
+```cython
+cdef class Particle():
+    cdef readonly double mass
+    cdef public double position
+    cdef double velocity
+# ...
+```
+
+Here, `position` will be both readable and writable by the Python caller.  
+If C-level allocations and deallocations must occur, then use the `__cinit__` and `__dealloc__` methods:
+
+```cython
+cdef class Matrix:
+    cdef:
+        unsigned int nrows, ncols
+        double *_matrix
+
+    def __cinit__(self, nr, nc):
+        self.nrows = nr
+        self.ncols = nc
+        self._matrix = <double*>malloc(nr * nc * sizeof(double))
+        if self._matrix == NULL:
+            raise MemoryError()
+
+    def __dealloc__(self):
+        if self._matrix != NULL:
+        free(self._matrix)
+```
+
+You can cast a Python object to a static object:
+
+```cython
+# p is a Python object that may be a Particle
+
+cdef Particle static_p = p
+
+# Or, with the possibility of segfault if p is not a particle:
+
+<Particle>p 
+
+# Or, safelly, but with overhead:
+
+<Particle?>p
+```
+
+`None` can be passed as argument for functions that receive static type. This will lead to segfaults. To protect against it:
+
+```cython
+def dispatch(Particle p not None):
+    print p.get_momentum()
+    print p.velocity
+```
 
 ## Code Organization
 
