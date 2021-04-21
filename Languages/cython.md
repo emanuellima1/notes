@@ -14,7 +14,6 @@
     - [C structs, unions, enums an typedefs](#c-structs-unions-enums-an-typedefs)
     - [Efficient Loops](#efficient-loops)
   - [Extension Types](#extension-types)
-  - [Code Organization](#code-organization)
   - [Wrapping C++](#wrapping-c)
   - [Profiling](#profiling)
   - [Typed Memoryviews](#typed-memoryviews)
@@ -372,8 +371,6 @@ def dispatch(Particle p not None):
     print p.get_momentum()
     print p.velocity
 ```
-
-## Code Organization
 
 ## Wrapping C++
 
