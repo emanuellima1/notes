@@ -654,7 +654,7 @@ Examples:
 ```julia
 # Read data from a CSV
 using DataFrames, CSV
-myData = CSV.read(file; delim=';', missingstring="NA", delim=";", decimal=',', copycols=true)
+myData = CSV.read(file, DataFrame, header = 1, copycols = true, types=Dict(:column_name => Int64)) 
 
 # Read data from the web:
 using DataFrames, HTTP, CSV
