@@ -36,7 +36,7 @@ Functions to write strings:
 - `print!`: same as format! but the text is printed to the console (io::stdout).
 - `println!`: same as print! but a newline is appended.
 - `eprint!`: same as format! but the text is printed to the standard error (io::stderr).
-- `eprintln!`: same as eprint!but a newline is appended.
+- `eprintln!`: same as eprint! but a newline is appended.
 
 Ways to print to stdout:
 
@@ -110,6 +110,9 @@ The build system and dependency manager is called cargo:
 # Creates a new project
 cargo new [name]
 
+# Create a new project without git
+cargo new --vcs=none [name]
+
 # Compiles
 cargo build
 
@@ -134,6 +137,12 @@ cargo fix
 cargo clippy
 ```
 
+You can make Clippy pedantic by adding the following at the first line of the `main.rs` file:
+
+```rust
+#![warn(clippy::all, clippy::pedantic)]
+```
+
 Declaration of variables:
 
 ```rust
@@ -153,7 +162,7 @@ fn main() {
 }
 ```
 
-For integers, we have i8, i16, i32, i64, i128 and u8, u16, u32, u64, u128 for unsigned. For floats, f32 and f64. i32 and f64 are the default types. The usual operators are present: + - * / %  
+For integers, we have i8, i16, i32, i64, i128 and u8, u16, u32, u64, u128 for unsigned. For floats, f32 and f64. i32 and f64 are the default types. The usual operators are present: + - * / %
 The underscore _ means to throw away something:
 
 ```rust
@@ -166,7 +175,6 @@ let _ = get_thing();
 // Starting with an underscore means the compiler  won't warn about them being unused:
 let _x = 42;
 ```
-
 
 Tuples:
 
@@ -232,8 +240,8 @@ struct Point2D(u32, u32);
 struct Unit;
 ```
 
-Tuple structs are similar to classic structs, but their fields have no names. For accessing individual variables, the same syntax is used as with regular tuples, namely, foo.0, foo.1, and so on, starting at zero.  
-Unit structs are most commonly used as markers. They're useful when you need to implement a trait on something but don't need to store any data inside it.  
+Tuple structs are similar to classic structs, but their fields have no names. For accessing individual variables, the same syntax is used as with regular tuples, namely, foo.0, foo.1, and so on, starting at zero.
+Unit structs are most commonly used as markers. They're useful when you need to implement a trait on something but don't need to store any data inside it.
 
 ```rust
 fn main() {
@@ -543,10 +551,10 @@ fn main() {
     // Remove "Ashley" from contacts
     contacts.remove(&"Ashley");
 
-    // `HashMap::iter()` returns an iterator that yields 
+    // `HashMap::iter()` returns an iterator that yields
     // (&'a key, &'a value) pairs in arbitrary order.
     for (contact, &number) in contacts.iter() {
-        println!("Calling {}: {}", contact, call(number)); 
+        println!("Calling {}: {}", contact, call(number));
     }
 }
 ```
@@ -805,33 +813,33 @@ fn main() {
 
 ### Stack and Heap
 
-Both the stack and the heap are parts of memory that are available to your code to use at runtime, but they are structured in different ways. The stack is last in, first out. Adding data is called pushing onto the stack, and removing data is called popping off the stack.  
+Both the stack and the heap are parts of memory that are available to your code to use at runtime, but they are structured in different ways. The stack is last in, first out. Adding data is called pushing onto the stack, and removing data is called popping off the stack.
 All data stored on the stack must have a known, fixed size. Data with an unknown size at compile time or a size that might change must be stored on the heap instead. The heap is less organized: when you put data on the heap, you request a certain amount of space. The operating system finds an empty spot in the heap that is big enough, marks it as being in use, and returns a pointer, which is the address of that location. This process is
-called allocating on the heap and is sometimes abbreviated as just allocating. Pushing values onto the stack is not considered allocating. Because the pointer is a known, fixed size, you can store the pointer on the stack, but when you want the actual data, you must follow the pointer.  
-Pushing to the stack is faster than allocating on the heap because the operating system never has to search for a place to store new data; that location is always at the top of the stack. Comparatively, allocating space on the heap requires more work, because the operating system must first find a big enough space to hold the data and then perform bookkeeping to prepare for the next allocation.  
-When your code calls a function, the values passed into the function (including, potentially, pointers to data on the heap) and the function’s local variables get pushed onto the stack. When the function is over, those values get popped off the stack.  
+called allocating on the heap and is sometimes abbreviated as just allocating. Pushing values onto the stack is not considered allocating. Because the pointer is a known, fixed size, you can store the pointer on the stack, but when you want the actual data, you must follow the pointer.
+Pushing to the stack is faster than allocating on the heap because the operating system never has to search for a place to store new data; that location is always at the top of the stack. Comparatively, allocating space on the heap requires more work, because the operating system must first find a big enough space to hold the data and then perform bookkeeping to prepare for the next allocation.
+When your code calls a function, the values passed into the function (including, potentially, pointers to data on the heap) and the function’s local variables get pushed onto the stack. When the function is over, those values get popped off the stack.
 The stack is the memory set aside as scratch space for a thread of execution. When a function is called, a block is reserved on the top of the stack for local variables and some bookkeeping data. When that function returns, the block becomes unused and can be used the next time a
 function is called. The stack is always reserved in a LIFO (last in first out) order; the most recently reserved block is always the next block to be freed. This makes it really simple to keep track of the stack;
-freeing a block from the stack is nothing more than adjusting one pointer.  
-The heap is memory set aside for dynamic allocation. Unlike the stack, there's no enforced pattern to the allocation and deallocation of blocks from the heap; you can allocate a block at any time and free it at any time. This makes it much more complex to keep track of which parts of the heap are allocated or free at any given time; there are many custom heap allocators available to tune heap performance for different usage patterns.  
-Each thread gets a stack, while there's typically only one heap for the application (although it isn't uncommon to have multiple heaps for different types of allocation).  
-The OS allocates the stack for each system-level thread when the thread is created. Typically the OS is called by the language runtime to allocate the heap for the application.  
-The stack is attached to a thread, so when the thread exits the stack is reclaimed. The heap is typically allocated at application startup by the runtime, and is reclaimed when the application (technically process) exits.  
-The size of the stack is set when a thread is created. The size of the heap is set on application startup, but can grow as space is needed (the allocator requests more memory from the operating system).  
-The stack is faster because the access pattern makes it trivial to allocate and deallocate memory from it (a pointer/integer is simply incremented or decremented), while the heap has much more complex bookkeeping involved in an allocation or deallocation. Also, each byte in the stack tends to be reused very frequently which means it tends to be mapped to the processor's cache, making it very fast. Another performance hit for the heap is that the heap, being mostly a global resource, typically has to be multi-threading safe, i.e. each allocation and deallocation needs to be - typically - synchronized with "all" other heap accesses in the program.  
+freeing a block from the stack is nothing more than adjusting one pointer.
+The heap is memory set aside for dynamic allocation. Unlike the stack, there's no enforced pattern to the allocation and deallocation of blocks from the heap; you can allocate a block at any time and free it at any time. This makes it much more complex to keep track of which parts of the heap are allocated or free at any given time; there are many custom heap allocators available to tune heap performance for different usage patterns.
+Each thread gets a stack, while there's typically only one heap for the application (although it isn't uncommon to have multiple heaps for different types of allocation).
+The OS allocates the stack for each system-level thread when the thread is created. Typically the OS is called by the language runtime to allocate the heap for the application.
+The stack is attached to a thread, so when the thread exits the stack is reclaimed. The heap is typically allocated at application startup by the runtime, and is reclaimed when the application (technically process) exits.
+The size of the stack is set when a thread is created. The size of the heap is set on application startup, but can grow as space is needed (the allocator requests more memory from the operating system).
+The stack is faster because the access pattern makes it trivial to allocate and deallocate memory from it (a pointer/integer is simply incremented or decremented), while the heap has much more complex bookkeeping involved in an allocation or deallocation. Also, each byte in the stack tends to be reused very frequently which means it tends to be mapped to the processor's cache, making it very fast. Another performance hit for the heap is that the heap, being mostly a global resource, typically has to be multi-threading safe, i.e. each allocation and deallocation needs to be - typically - synchronized with "all" other heap accesses in the program.
 
 ### Ownership
 
 Each value in Rust has a variable that’s called its owner. There can only be one owner at a time. When the owner goes out of scope, the value will be
-dropped.  
-Copies of heap objects are shallow, meaning that a new variable is just another pointer (on the stack) to the same heap address. The first pointer becomes stale.  
+dropped.
+Copies of heap objects are shallow, meaning that a new variable is just another pointer (on the stack) to the same heap address. The first pointer becomes stale.
 
 ```rust
 let s1 = String::from("Hello!");
 let s2 = s1;
 ```
 
-Stack variables are deep copied. They have a fixed size known in compile time.  As a general rule, any group of simple scalar values can be Copy, and nothing that requires allocation or is some form of resource is Copy. Ex.: integers, floats, booleans, characters and tuples of these types.  
+Stack variables are deep copied. They have a fixed size known in compile time.  As a general rule, any group of simple scalar values can be Copy, and nothing that requires allocation or is some form of resource is Copy. Ex.: integers, floats, booleans, characters and tuples of these types.
 Passing a variable to a function will move or copy, just as assignment does:
 
 ```rust
@@ -869,8 +877,8 @@ fn makes_copy(some_integer: i32) {
 ```
 
 The ownership of a variable follows the same pattern every time: assigning a value to another variable moves it. When a variable that includes data on the heap goes out of scope, the value will be cleaned up by drop unless
-the data has been moved to be owned by another variable.  
-At any given time, you can have either one mutable reference or any number of immutable references. References must always be valid.  
+the data has been moved to be owned by another variable.
+At any given time, you can have either one mutable reference or any number of immutable references. References must always be valid.
 
 ## References
 
