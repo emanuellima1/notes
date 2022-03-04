@@ -44,6 +44,10 @@ Ways to print to stdout:
 fn main() {
     println!(“Today is {}”, 20);
 
+    // By variable
+    let name = "world";
+    println!("Hello {name}!");
+
     // By positional argument
     println!("{0}, this is {1}. {1}, this is {0}", "Alice", "Bob");
 
@@ -162,7 +166,8 @@ fn main() {
 }
 ```
 
-For integers, we have i8, i16, i32, i64, i128 and u8, u16, u32, u64, u128 for unsigned. For floats, f32 and f64. i32 and f64 are the default types. The usual operators are present: + - * / %
+For integers, we have `i8`, `i16`, `i32`, `i64`, `i128` and `u8`, `u16`, `u32`, `u64`, `u128` for unsigned. For floats, `f32` and `f64`. `i32` and `f64` are the default types.  
+The usual operators are present: `+` `-` `*` `/` `%`
 The underscore _ means to throw away something:
 
 ```rust
