@@ -168,7 +168,7 @@ fn main() {
 
 For integers, we have `i8`, `i16`, `i32`, `i64`, `i128` and `u8`, `u16`, `u32`, `u64`, `u128` for unsigned. For floats, `f32` and `f64`. `i32` and `f64` are the default types.  
 The usual operators are present: `+` `-` `*` `/` `%`
-The underscore _ means to throw away something:
+The underscore `_` means to throw away something:
 
 ```rust
 // this does nothing because 42 is a constant
@@ -459,7 +459,7 @@ fn main() {
 }
 ```
 
-Generic functions can be navigated using ::
+Generic functions can be navigated using `::`
 
 ```rust
 fn main() {
