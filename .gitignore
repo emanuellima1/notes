@@ -2,3 +2,5 @@
 *.out
 .clang-format
 *.jl
+*.py
+.mypy_cache
