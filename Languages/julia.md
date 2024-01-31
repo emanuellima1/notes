@@ -42,8 +42,8 @@ Multi-line comment
 println("Hello, World!")
 ```
 
-Indentation doesn't matter. Indexing starts at 1, like Matlab and Octave.  
-In the REPL, by pressing "]" you can enter the "package mode", where you can write commands that manage the packages you have or want. Some commands:  
+Indentation doesn't matter. Indexing starts at 1, like Matlab and Octave.
+In the REPL, by pressing "]" you can enter the "package mode", where you can write commands that manage the packages you have or want. Some commands:
 
 - `status`: Retrieves a list with name and versions of locally installed packages
 - `update`: Updates your local index of packages and all your local packages to the latest version
@@ -53,22 +53,19 @@ In the REPL, by pressing "]" you can enter the "package mode", where you can wri
 - `add pkgName#branchName`: Checkout a specific branch
 - `add git@github.com:userName/pkgName.jl.git`: Checkout a non registered pkg
 
-To use a package on a Julia script, write `using [package]` at the beginning of the script. To use a package without populating the namespace, write `import [package]`. But then, you will have to use the functions as `[package].function()`. You can also include local Julia scripts as such: `include("my_script.jl")`.  
+To use a package on a Julia script, write `using [package]` at the beginning of the script. To use a package without populating the namespace, write `import [package]`. But then, you will have to use the functions as `[package].function()`. You can also include local Julia scripts as such: `include("my_script.jl")`.
 
 I think that `using [package]` is bad practice. The best way to import a package is this:
 
 ```julia
-# Importing the JSON package through an alias 
-# BEFORE JULIA 1.6
-import JSON; const J = JSON
-
-# Importing the JSON package through an alias 
-# AFTER JULIA 1.6
+# Importing the JSON package through an alias
 import JSON as J
 
 # Using:
 J.print(Dict("Hello, " => "World!"))
 ```
+
+A particular class of variable names is one that contains only underscores. These identifiers can only be assigned values, which are immediately discarded, and cannot therefore be used to assign values to other variables (i.e., they cannot be used as rvalues) or use the last value assigned to them in any way.
 
 ## Data Types and Structures
 
@@ -86,13 +83,13 @@ Complex numbers can be defined like so, with `im` being the square root of -1:
 a = 1 + 2im
 ```
 
-Exact integer division cane be done like this:
+Exact integer division can be done like this:
 
 ```julia
 a = 2 // 3
 ```
 
-All standard basic mathematical arithmetic operators are supported (+, -, *, /, %, ^).  
+All standard basic mathematical arithmetic operators are supported (+, -, *, /, %, ^).
 Mathematical constants can be used like so:
 
 ```julia
@@ -132,7 +129,7 @@ Other ways to concatenate strings:
 - Function `string(string1,string2,string3)`;
 - Interpolate string variables in a bigger one using the dollar symbol: `a = "$str1 is a string and $(myobject.int1) is an integer"`.
 
-To convert strings representing numbers to integers or floats, use `myInt = parse(Int64,"2017")`. To convert integers or floats to strings, use `myString = string(123)`.  
+To convert strings representing numbers to integers or floats, use `myInt = parse(Int64,"2017")`. To convert integers or floats to strings, use `myString = string(123)`.
 
 You can broadcast a function to work over a collection (instead of a scalar) using the dot (.) operator. For example, to broadcast `parse` to work over an array:
 
@@ -147,12 +144,12 @@ Arrays are N-dimensional mutable containers. Ways to create one:
 - `a = []` or `a = Int64[]` or `a = Array{T,1}()` or `a = Vector{T}()`: Empty array. Array{} is the constructor, T is the type and Vector{} is an alias for 1 dimensional arrays.
 - `a = zeros(5)` or `a = zeros(Int64,5)` or `a = ones(5)`: Array of zeros (or ones)
 - `a = fill(j, n)`: n-element array of identical j elements
-- `a = rand(n)`: n-element array of random numbers  
+- `a = rand(n)`: n-element array of random numbers
 - `a = [1,2,3]`: Explicit construction (column vector).
 - `a = [1 2 3]`:  Row vector (this is a two-dimensional array where the first dimension is made of a single row)
 - `a = [10, "foo", false]`: Can be of mixed types, but will be much slower
 
-If you need to store different types on a data structure, better to use an Union: `a = Union{Int64,String,Bool}[10, "Foo", false]`.  
+If you need to store different types on a data structure, better to use an Union: `a = Union{Int64,String,Bool}[10, "Foo", false]`.
 Some operations on arrays:
 
 - `a[1]`: Access element.
@@ -203,14 +200,14 @@ Ways to create one:
 - `a = vcat(row1, row2)`: By the rows.
 - `a = zeros(2,3)` or `a = ones(2,3)`: A 2x3 matrix filled with zeros or ones.
 - `a = fill(j, 2, 3)`: A 2x3 matrix of identical j elements
-- `a = rand(2, 3)`: A 2x3 matrix of random numbers  
+- `a = rand(2, 3)`: A 2x3 matrix of random numbers
 
 Attention to the difference:
 
 - `a = [[1,2,3],[4,5,6]]`: creates a 1-dimensional array with 2-elements.
 - `a = [[1,2,3] [4,5,6]]`: creates a 2-dimensional array (a matrix with 2 columns) with three elements (scalars).
 
-Access the elements with `a[row,col]`.  
+Access the elements with `a[row,col]`.
 You can also make a boolean mask and apply to the matrix:
 
 ```julia
@@ -292,7 +289,7 @@ Shallow copy (copy of the memory address only) is the default in Julia. Some obs
 
 Observations on types:
 
-You can check if two objects have the same values with `==` and if two objects are actually the same with `===`.  
+You can check if two objects have the same values with `==` and if two objects are actually the same with `===`.
 
 To cast an object into a different type:
 
@@ -416,7 +413,7 @@ function func(a, args...)
 end
 ```
 
-Julia has multiple-dispatch. If you declare the same function with different arguments, the compiler will choose the correct function to call based on the arguments you passed.  
+Julia has multiple-dispatch. If you declare the same function with different arguments, the compiler will choose the correct function to call based on the arguments you passed.
 You can also do type parametrization on functions:
 
 ```julia
@@ -448,10 +445,10 @@ x = 1
 y = [1,1]
 
 # x will not change, but y will now be [10,1]
-f(x,y) 
+f(x,y)
 ```
 
-Functions that change their arguments have their name, by convention, followed by an '!'. The first parameter is, still by convention, the one that will be modified.  
+Functions that change their arguments have their name, by convention, followed by an '!'. The first parameter is, still by convention, the one that will be modified.
 
 Anonymous functions can be declared like so:
 
@@ -607,7 +604,7 @@ catch
 end
 
 # Check for specific exception:
-function volume(region, year) 
+function volume(region, year)
     try
         return data["volume",region,year]
     catch e
@@ -654,7 +651,7 @@ Examples:
 ```julia
 # Read data from a CSV
 using DataFrames, CSV
-myData = CSV.read(file, DataFrame, header = 1, copycols = true, types=Dict(:column_name => Int64)) 
+myData = CSV.read(file, DataFrame, header = 1, copycols = true, types=Dict(:column_name => Int64))
 
 # Read data from the web:
 using DataFrames, HTTP, CSV
